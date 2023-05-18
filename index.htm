@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Tasks List</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="h1">My Tasks</h1>
+      <div class="box" id="cols-box">
+        <div class="column">
+          <h2 class="col-head">Not Started</h2>
+          <div class="input-box">
+            <input
+              class="input"
+              type="text"
+              name="task"
+              placeholder="Write here..."
+              minlength="4"
+              maxlength="25"
+            />
+            <button class="add">
+              <ion-icon class="icn" name="add-outline"></ion-icon>
+            </button>
+          </div>
+          <ul class="tasks-list notStarted"></ul>
+          <button class="empty empty-not">Empty the list</button>
+        </div>
+
+        <div class="column">
+          <h2 class="col-head">In Progress</h2>
+          <ul class="tasks-list inProgress"></ul>
+          <button class="empty empty-inP">Empty the list</button>
+        </div>
+
+        <div class="column">
+          <h2 class="col-head">Completed</h2>
+          <ul class="tasks-list completed"></ul>
+          <button class="empty empty-com">Empty the list</button>
+        </div>
+      </div>
+    </div>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <!-- <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script> -->
+
+    <script src="script.js" type="module"></script>
+    <script src="test.js" type="module"></script>
+  </body>
+</html>
