@@ -1,8 +1,9 @@
 ////////////////////VARIABLES///////////
 let inputField = document.querySelector("input");
 let addBtn = document.querySelector(".add");
-// let tasksList = document.querySelector(".tasks-list"); // YOU CANNOT SELECT 3 ITEMS WITH ONE SELECTOR
-let tasksList = document.querySelectorAll(".tasks-list"); //note All // not work also// =[]
+// let dropZones = document.querySelector(".tasks-list"); // YOU CANNOT SELECT 3 ITEMS WITH ONE SELECTOR
+let dropZones = document.querySelectorAll(".tasks-list"); //note All // not work also// =[]
+
 let notStartedList = document.querySelector(".notStarted");
 let inProgressList = document.querySelector(".inProgress");
 let completedList = document.querySelector(".completed");
@@ -17,17 +18,21 @@ let emptyCompBtn = document.querySelector(".empty-com");
 // let editBtn = document.createElement("button");
 let tasksArr = [];
 ////Handel drag targets events/////
-//TASKsLIST IS AN ARRAY SO WE NEED TO FOReACH()
-tasksList.forEach((uL) => {
+//dropZones IS AN ARRAY SO WE NEED TO FOReACH()
+dropZones.forEach((uL) => {
   uL.addEventListener("dragenter", dragEnter); // WITHOUT ()
   uL.addEventListener("dragover", dragOver);
   uL.addEventListener("drop", drop);
   uL.addEventListener("dragleave", dragLeave);
 });
-// console.log(tasksList);
+// console.log(dropZones);
 
 //////////////FUNCTIONS/////////////
 addOldDataToPage();
+function addOldDataToPage() {
+  getDataFromLocalStorage();
+  // 2 addTasksToPage(arr)
+}
 
 //FIRST GET DATA FROM LOCAL STORAGE
 function getDataFromLocalStorage() {
@@ -39,45 +44,9 @@ function getDataFromLocalStorage() {
     addTasksToPage(tasksArr);
   }
 }
-//SECOND GET DATA FROM INPUT BUTTON
-addBtn.addEventListener("click", () => {
-  //3adds
-  //1 WORK
-  // addBtn.onclick = () => {
-  //  WORK
-  // addBtn.onclick = function () {
-  if (inputField.value !== "") {
-    // addTaskToArray(inputField); //
-    addNewTaskToArray(inputField.value); //3
-    // tasksArr.push(inputField.value);
-    //2 inputField = ""; // DON'T FORGET .VALUE
-    inputField.value = ""; //test1
-  }
-});
-function addNewTaskToArray(taskText) {
-  // 3adds
-  const task = {
-    //4
-    title: taskText,
-    ID: Date.now(),
-    // state: notStarted,
-    state: {
-      notStarted: false,
-      inProgress: true,
-      completed: false,
-    },
-  };
-  //5 Push Task To Array Of Tasks
-  tasksArr.push(task); // BASE
-  // console.log(tasksArr); //test2
-  //6 Add Tasks To Page // FIRST
-  addTasksToPage(tasksArr); //YOU HAVE TO ADD TO PAGE AFTER EDITING LOCAL STORAGE
-  //11 Add Tasks To Local Storage after Editing// SECOND
-  addDataToLocalStorageFrom(tasksArr);
-}
 function addTasksToPage(arr) {
   //7 Empty tasks lists to avoid repeating old tasks
-  // tasksList.innerHTML = ""; // YOU CANNOT SELECT 3 ITEMS WITH ONE SELECTOR but SELECTaLL
+  // dropZones.innerHTML = ""; // YOU CANNOT SELECT 3 ITEMS WITH ONE SELECTOR but SELECTaLL
   notStartedList.innerHTML = "";
   inProgressList.innerHTML = "";
   completedList.innerHTML = "";
@@ -112,16 +81,29 @@ function addTasksToPage(arr) {
     });
 
     let editBtn = document.createElement("button");
-    editBtn.innerHTML = ` <ion-icon name="create-outline" class="icn"></ion-icon> `;
+    editBtn.innerHTML = `<ion-icon name="create-outline" class="icn"></ion-icon> `;
     editBtn.className = "edit";
+    // editBtn.addEventListener("click", (e) => {
+    // taskInput.edit= true
+    // taskLI.innerText = "";
+    // // taskLI.innerText = taskLI.value;
+    // let editInput = document.createElement("input");
+    // editInput.className = "edit-input";
+    // editInput.value = taskLI.value;
+    // taskBox.appendChild(editInput);
     editBtn.addEventListener("click", (e) => {
-      // taskInput.edit= true
-      // taskLI.innerText = "";
-      // // taskLI.innerText = taskLI.value;
-      // let editInput = document.createElement("input");
-      // editInput.className = "edit-input";
-      // editInput.value = taskLI.value;
-      // taskBox.appendChild(editInput);
+      // const taskBox = e.target.parentElement.parentElement;// WE'VE ALREADY DEFINED THE TASKbOX
+
+      const taskID = taskBox.getAttribute("data-id");
+      const taskTitle = taskBox.querySelector("li").textContent;
+      const newTitle = prompt("Write the new task title:", taskTitle);
+
+      if (newTitle !== null && newTitle !== "" && newTitle !== taskTitle) {
+        const taskToUpdate = tasksArr.find((task) => task.ID == taskID);
+        taskToUpdate.title = newTitle;
+        addTasksToPage(tasksArr);
+        addDataToLocalStorageFrom(tasksArr);
+      }
     });
 
     taskBox.append(taskLI, editBtn, deleteBtn);
@@ -154,16 +136,51 @@ function addTasksToPage(arr) {
     }
   });
 }
+
+//SECOND GET DATA FROM INPUT BUTTON
+////////////////////////////////////
+addBtn.addEventListener("click", () => {
+  //3adds
+  //1 WORK
+  // addBtn.onclick = () => {
+  //  WORK
+  // addBtn.onclick = function () {
+  if (inputField.value !== "") {
+    // addTaskToArray(inputField); //
+    addNewTaskToArray(inputField.value); //3
+    // tasksArr.push(inputField.value);
+    //2 inputField = ""; // DON'T FORGET .VALUE
+    inputField.value = ""; //test1
+  }
+});
+function addNewTaskToArray(taskText) {
+  // 3adds
+  const task = {
+    //4
+    title: taskText,
+    ID: Date.now(),
+    // state: notStarted,
+    state: {
+      notStarted: true,
+      inProgress: false,
+      completed: false,
+    },
+  };
+  //5 Push Task To Array Of Tasks
+  tasksArr.push(task); // BASE
+  // console.log(tasksArr); //test2
+  //6 Add Tasks To Page // FIRST
+  addTasksToPage(tasksArr); //YOU HAVE TO ADD TO PAGE AFTER EDITING LOCAL STORAGE
+  //11 Add Tasks To Local Storage after Editing// SECOND
+  addDataToLocalStorageFrom(tasksArr);
+}
 function addDataToLocalStorageFrom(arr) {
   // console.log(arr);
   // console.log(JSON.stringify(arr)); // test4
 
   localStorage.setItem("Tasks", JSON.stringify(arr)); //Tasks
 }
-function addOldDataToPage() {
-  getDataFromLocalStorage();
-  // 2 addTasksToPage(arr)
-}
+
 //Update: delete and add
 function deleteTaskFromTasksArrayAndLocalStorageWith(taskId) {
   // forEach((ele) => {
@@ -177,6 +194,7 @@ function deleteTaskFromTasksArrayAndLocalStorageWith(taskId) {
   tasksArr = tasksArr.filter((task) => task.ID != taskId); // new tasksArr
   addDataToLocalStorageFrom(tasksArr);
 }
+
 emptyNotBtn.onclick = (e) => {
   // First empty the list from local storage
   tasksArr = tasksArr.filter((task) => task.state.notStarted === false);
@@ -202,6 +220,7 @@ emptyCompBtn.addEventListener("click", () => {
 });
 ////////DRAG & DROP FUNCTIONS/////////////
 // for draggable ele:
+////////////////////////////////////////////
 function dragStart(e) {
   setTimeout(() => {
     e.target.classList.add("hide");
@@ -222,17 +241,24 @@ function dragStart(e) {
 //   // for draggable ele
 // }
 
-//////////drop target/////////////
+//////////drop target zone/////////////
+////////////////////////////////////
 function dragEnter(e) {
-  e.preventDefault();
+  if (e.target.classList.contains("tasks-list")) {
+    e.preventDefault();
+  }
 }
 function dragOver(e) {
-  e.preventDefault();
-  e.target.classList.add("over");
+  if (e.target.classList.contains("tasks-list")) {
+    e.preventDefault();
+    e.target.classList.add("over");
+  }
 }
 function dragLeave(e) {
-  e.target.classList.remove("over");
-  // this.classList.remove("over");
+  if (e.target.classList.contains("tasks-list")) {
+    e.target.classList.remove("over");
+    // this.classList.remove("over");
+  }
 }
 // function drop(e) {
 //   // drop means you choose this target zone; it's differ from leave
@@ -252,36 +278,97 @@ function dragLeave(e) {
 //   // this.remove();
 // }
 function drop(e) {
-  e.preventDefault(); // why? what's useful?
-  const id = e.dataTransfer.getData("text/plain");
-  const draggable = document.querySelector(`[data-id="${id}"]`); // select by an attribute
-  const dropzone = e.target;
-  dropzone.appendChild(draggable);
-  draggable.classList.remove("hide");
-
-  updateArrayAndLocalStorage();
+  if (e.target.classList.contains("tasks-list")) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData("text/plain");
+    const draggable = document.querySelector(`[data-id="${id}"]`); // select by an attribute
+    const dropzone = e.target; // HOW I MAKE IT NOT INCLUDE LIST
+    dropzone.appendChild(draggable);
+    dropzone.classList.remove("over");
+    draggable.classList.remove("hide");
+    // updateArrayAndLocalStorage(id);
+  }
 }
 
 //NEW DATA FROM DRAG AND DROP ON THE PAGE
 
 function updateArrayAndLocalStorage(id) {
+  deleteTaskFromTasksArrayAndLocalStorageWith(id);
+
+  let taskBox = document.querySelector(`[data-id="${id}"]`);
   switch (true) {
     case taskBox.parentElement === completedList:
-      task.state.completed;
+      tasksArr.forEach((task) => {
+        if (task.ID == id) {
+          task.state.completed = true;
+          task.state.inProgress = false;
+          task.state.notStarted = false;
+        }
+      });
       break;
     case taskBox.parentElement === inProgressList:
-      task.state.inProgress;
+      tasksArr.forEach((task) => {
+        if (task.ID == id) {
+          task.state.completed = false;
+          task.state.inProgress = true;
+          task.state.notStarted = false;
+        }
+      });
       break;
     case taskBox.parentElement === notStartedList:
-      task.state.notStarted;
+      tasksArr.forEach((task) => {
+        if (task.ID == id) {
+          task.state.completed = false;
+          task.state.inProgress = false;
+          task.state.notStarted = true;
+        }
+      });
       break;
 
     default:
       console.log("Invalid Parent List");
       break;
   }
-  addNewTaskToArray();
-  deleteTaskFromTasksArrayAndLocalStorageWith(id);
-  // addNewTaskToArray(taskText);// not need
-  // addDataToLocalStorageFrom(arr); // in delete fun.
+  addNewTaskToArray(taskBox.textContent);
+  // const taskToUpdate = tasksArr.find((task) => task.ID == id);
+  // tasksArr.push(taskToUpdate); // BASE
+  // addDataToLocalStorageFrom(tasksArr);
+  // const task = {
+  //   //4
+  //   title: taskText,
+  //   ID: Date.now(),
+  //   // state: notStarted,
+  //   state: {
+  //     notStarted: true,
+  //     inProgress: false,
+  //     completed: false,
+  //   },
+  // };
+  //5 Push Task To Array Of Tasks
+  // tasksArr.push(task); // BASE
+  // addDataToLocalStorageFrom(tasksArr);
+  // console.log(tasksArr); //test2
+  //6 Add Tasks To Page // FIRST
+  // addTasksToPage(tasksArr); //YOU HAVE TO ADD TO PAGE AFTER EDITING LOCAL STORAGE
+  //11 Add Tasks To Local Storage after Editing// SECOND
+  // addNewTaskToArray();
+  // editTaskLocation(id);
 }
+
+// function editTaskLocation(id) {
+//   // switch (true) {
+//   //   case taskBox.parentElement === completedList:
+//   //     task.state.completed;
+//   //     break;
+//   //   case taskBox.parentElement === inProgressList:
+//   //     task.state.inProgress;
+//   //     break;
+//   //   case taskBox.parentElement === notStartedList:
+//   //     task.state.notStarted;
+//   //     break;
+//   // }
+//   // updateArrayAndLocalStorage(id);
+//   // addNewTaskToArray();
+//   // addNewTaskToArray(taskText);// not need
+//   // addDataToLocalStorageFrom(arr); // in delete fun.
+// }
